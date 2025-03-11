@@ -1,54 +1,66 @@
 <template>
-    <div class="black-bg" v-if="is_modal_open">
-        <div class="white-bg">
-            <h4>상세페이지</h4>
-            <p>내용</p><button @click="is_modal_open=false">닫기</button>
-        </div>
-    </div>
+
+    <Modal :clicked_room="clicked_room" :is_modal_open="is_modal_open" @closeModal="is_modal_open=false"/>
+
+    <discount v-if="is_showDiscount" />
+
     <div class="menu">
         <a v-for="(menu, i) in menus" :key="i">{{ menu }}</a>
     </div>
-    <div>
-        <img src="./assets/images/room0.jpg" class="room-img">
-        <h4 @click="is_modal_open = true">{{ products[0] }}</h4>
-        <p>50만원</p>
-        <button @click="increse(0)">허위매물신고</button>
-        <span>신고수 : {{ report_cnt[0] }}</span>        
+    <button @click="priceSort()">가격순정열</button>
+
+    <div v-for="(oneroom, i) in onerooms" :key="i">
+        <Card :oneroom="oneroom" @openModal="showModal($event)"/>
     </div>
-    <div>
-        <img src="./assets/images/room1.jpg" class="room-img">
-        <h4>{{ products[1] }}</h4>
-        <p>50만원</p>
-        <button @click="increse(1)">허위매물신고</button>
-        <span>신고수 : {{ report_cnt[1] }}</span>        
+<!--
+    <div v-for="(oneroom, i) in onerooms" :key="i">
+        <img :src=oneroom.image class="room-img">
+        <h4 @click="showModal(oneroom)">{{ oneroom.title }}</h4>
+        <p>{{ oneroom.price }}</p>
     </div>
-    <div>
-        <img src="./assets/images/room2.jpg" class="room-img">
-        <h4>{{ products[2] }}</h4>
-        <p>50만원</p>
-        <button @click="increse(2)">허위매물신고</button>
-        <span>신고수 : {{ report_cnt[2] }}</span>        
-    </div>
+-->    
 </template>
 
 <script>
+import data from './oneroom.js';
+import discount from './discount.vue';
+import Modal from './components/Modal.vue';
+import Card from './components/Card.vue';
 
 export default {
     name: 'App',
     data() {
         return {
-            is_modal_open : false,
+            is_showDiscount:true,
+            is_modal_open: false,
             menus: ["Home", "Products", "About"],
-            products: ["역삼동원룸", "천호동원룸", "마포구원룸"],
-            report_cnt : [0,0,0],
+            onerooms: data,
+            onerooms_org: data,
+            clicked_room: Object,
         }
     },
     components: {
-
+        discount : discount,
+        Modal : Modal,
+        Card,
+    },
+    mounted() {
+        setTimeout(()=>{
+            this.is_showDiscount = false;
+        }, 2000);
     },
     methods: {
         increse(no) {
             this.report_cnt[no]++;
+        },
+        showModal(clicked) {
+            this.clicked_room = clicked;
+            this.is_modal_open = true;
+        },
+        priceSort(){
+            this.onerooms.sort(function(a,b) {
+                return a - b;
+            })
         }
     },
 
@@ -56,7 +68,7 @@ export default {
 </script>
 
 <style>
-body{
+body {
     margin: 0;
 }
 
@@ -64,9 +76,17 @@ div {
     box-sizing: border-box;
 }
 
+.discount {
+    background: #eee;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
 .black-bg {
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0,5);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0, 5);
     position: fixed;
     padding: 20px;
 }
@@ -78,7 +98,7 @@ div {
     padding: 20px;
 }
 
-.room-img{
+.room-img {
     width: 100%;
     margin-top: 40px;
 }
